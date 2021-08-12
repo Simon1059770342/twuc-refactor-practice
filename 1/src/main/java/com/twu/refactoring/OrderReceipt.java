@@ -1,5 +1,7 @@
 package com.twu.refactoring;
 
+import java.util.stream.Collectors;
+
 /**
  * OrderReceipt prints the details of order including customer name, address, description, quantity,
  * price and amount. It also calculates the sales tax @ 10% and prints as part
@@ -8,50 +10,36 @@ package com.twu.refactoring;
  * 
  */
 public class OrderReceipt {
-    private Order o;
+	public static final String PRINTING_ORDERS = "======Printing Orders======";
+	public static final String SALES_TAX = "Sales Tax";
+	public static final String TOTAL_AMOUNT = "Total Amount";
+	public static final String ENTER = "\n";
+	public static final char TAB = '\t';
+	private Order order;
 
-    public OrderReceipt(Order o) {
-        this.o = o;
+    public OrderReceipt(Order order) {
+        this.order = order;
 	}
+
+	private static final double rate = 0.10;
 
 	public String printReceipt() {
 		StringBuilder output = new StringBuilder();
-
 		// print headers
-		output.append("======Printing Orders======\n");
-
-		// print date, bill no, customer name
-//        output.append("Date - " + order.getDate();
-        output.append(o.getCustomerName());
-        output.append(o.getCustomerAddress());
-//        output.append(order.getCustomerLoyaltyNumber());
+		output.append(PRINTING_ORDERS).append(ENTER).append(order.getCustomerName()).append(order.getCustomerAddress());
 
 		// prints lineItems
-		double totSalesTx = 0d;
-		double tot = 0d;
-		for (LineItem lineItem : o.getLineItems()) {
-			output.append(lineItem.getDescription());
-			output.append('\t');
-			output.append(lineItem.getPrice());
-			output.append('\t');
-			output.append(lineItem.getQuantity());
-			output.append('\t');
-			output.append(lineItem.totalAmount());
-			output.append('\n');
+		double totalPrice = order.getOrderItems().stream().mapToDouble(OrderItem::totalAmount).sum();
+		output.append(order.getOrderItems().stream().map(OrderItem::toString).collect(Collectors.joining()));
 
-			// calculate sales tax @ rate of 10%
-            double salesTax = lineItem.totalAmount() * .10;
-            totSalesTx += salesTax;
-
-            // calculate total amount of lineItem = price * quantity + 10 % sales tax
-            tot += lineItem.totalAmount() + salesTax;
-		}
+		double totalSalesTax = totalPrice * rate;
+		double totalPriceWithTax = totalPrice + totalSalesTax;
 
 		// prints the state tax
-		output.append("Sales Tax").append('\t').append(totSalesTx);
+		output.append(SALES_TAX).append(TAB).append(totalSalesTax);
 
         // print total amount
-		output.append("Total Amount").append('\t').append(tot);
+		output.append(TOTAL_AMOUNT).append(TAB).append(totalPriceWithTax);
 		return output.toString();
 	}
 }
