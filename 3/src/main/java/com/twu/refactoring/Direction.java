@@ -1,5 +1,7 @@
 package com.twu.refactoring;
 
+import java.lang.reflect.Array;
+
 public class Direction {
     private final char direction;
 
@@ -7,35 +9,23 @@ public class Direction {
         this.direction = direction;
     }
 
-    public Direction turnRight() {
-        switch (direction) {
-            case 'N':
-                return new Direction('E');
-            case 'S':
-                return new Direction('W');
-            case 'E':
-                return new Direction('N');
-            case 'W':
-                return new Direction('S');
+    private static final String DirectionList = "NESW";
+
+    //    0
+    //  3    1
+    //     2
+    public Direction trunDirection(String turnDirection) {
+        switch (turnDirection) {
+            case "left":
+                return new Direction(DirectionList.charAt((DirectionList.indexOf(direction) + 3) % 4));
+            case "right":
+                return new Direction(DirectionList.charAt((DirectionList.indexOf(direction) + 1) % 4));
             default:
                 throw new IllegalArgumentException();
         }
     }
 
-    public Direction turnLeft() {
-        switch (direction) {
-            case 'N':
-                return new Direction('W');
-            case 'S':
-                return new Direction('E');
-            case 'E':
-                return new Direction('N');
-            case 'W':
-                return new Direction('S');
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
+
 
     @Override
     public boolean equals(Object o) {
