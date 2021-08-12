@@ -1,10 +1,14 @@
 package com.twu.refactoring;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.stream.Collectors;
 
 public class Customer {
 
+	public static final String RENTAL_RECORD_FOR = "Rental Record for ";
+	public static final String AMOUNT_OWED_IS = "Amount owed is ";
+	public static final String YOU_EARNED = "You earned ";
+	public static final String FREQUENT_RENTER_POINTS = " frequent renter points";
 	private String name;
 	private ArrayList<Rental> rentalList = new ArrayList<Rental>();
 
@@ -21,49 +25,15 @@ public class Customer {
 	}
 
 	public String statement() {
-		double totalAmount = 0;
-		int frequentRenterPoints = 0;
-		Iterator<Rental> rentals = rentalList.iterator();
-		String result = "Rental Record for " + getName() + "\n";
-		while (rentals.hasNext()) {
-			double thisAmount = 0;
-			Rental each = rentals.next();
+		double totalAmount = rentalList.stream().mapToDouble(Rental::getCurrentAmount).sum();
+		int frequentRenterPoints = rentalList.stream().mapToInt(Rental::getCurrentfrequentRenterPoint).sum();
+		ArrayList<Rental> rentals = new ArrayList<>(rentalList);
+		String result = RENTAL_RECORD_FOR + getName() + "\n";
+		result += rentals.stream().map(Rental::toString).collect(Collectors.joining());
 
-			// determine amounts for each line
-			switch (each.getMovie().getPriceCode()) {
-			case Movie.REGULAR:
-				thisAmount += 2;
-				if (each.getDaysRented() > 2)
-					thisAmount += (each.getDaysRented() - 2) * 1.5;
-				break;
-			case Movie.NEW_RELEASE:
-				thisAmount += each.getDaysRented() * 3;
-				break;
-			case Movie.CHILDRENS:
-				thisAmount += 1.5;
-				if (each.getDaysRented() > 3)
-					thisAmount += (each.getDaysRented() - 3) * 1.5;
-				break;
-
-			}
-
-			// add frequent renter points
-			frequentRenterPoints++;
-			// add bonus for a two day new release rental
-			if ((each.getMovie().getPriceCode() == Movie.NEW_RELEASE)
-					&& each.getDaysRented() > 1)
-				frequentRenterPoints++;
-
-			// show figures for this rental
-			result += "\t" + each.getMovie().getTitle() + "\t"
-					+ String.valueOf(thisAmount) + "\n";
-			totalAmount += thisAmount;
-
-		}
-		// add footer lines
-		result += "Amount owed is " + String.valueOf(totalAmount) + "\n";
-		result += "You earned " + String.valueOf(frequentRenterPoints)
-				+ " frequent renter points";
+		result += AMOUNT_OWED_IS + String.valueOf(totalAmount) + "\n";
+		result += YOU_EARNED + String.valueOf(frequentRenterPoints)
+				+ FREQUENT_RENTER_POINTS;
 		return result;
 	}
 
